@@ -1,0 +1,26 @@
+name: flutter_minesweeper
+description: A MineSweeper game built on Flutter
+
+publish_to: 'none'
+
+version: 0.0.1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  pedantic: ^1.9.2
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
