@@ -1,16 +1,13 @@
-# flutter_minesweeper
+# MineSweeper
 
-A MineSweeper game built on Flutter
+A MineSweeper game built using Flutter
 
-## Getting Started
+Show some <img src="https://github.githubassets.com/images/icons/emoji/unicode/2764.png" width="30" height="30" /> and star the repo to support the project.
 
-This project is a starting point for a Flutter application.
+## Starter Project
 
-A few resources to get you started if this is your first Flutter project:
+You can find the starter project in the `starter-project` branch.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## Preview
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img src="https://raw.githubusercontent.com/arturogutierrez/flutter_minesweeper/master/art/demo.png" width="400"/>
