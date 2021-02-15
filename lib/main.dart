@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_minesweeper/game/view/game_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +15,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blueGrey,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Container(),
+      debugShowCheckedModeBanner: false,
+      home: GameScreen(),
     );
   }
 }
