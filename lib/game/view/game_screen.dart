@@ -42,12 +42,21 @@ class GameScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              child: state is Playing ? _gameContent(context, state) : _loading(),
+              child: _getContent(state, context),
             ),
           );
         },
       ),
     );
+  }
+
+  Widget _getContent(GameState state, BuildContext context) {
+    if (state is Playing) {
+      return _gameContent(context, state.gameConfiguration, state.cells, state.minesRemaining);
+    } else if (state is Finished) {
+      return _gameContent(context, state.gameConfiguration, state.cells, state.minesRemaining);
+    }
+    return _loading();
   }
 
   Widget _loading() {
@@ -56,7 +65,13 @@ class GameScreen extends StatelessWidget {
     );
   }
 
-  Widget _gameContent(BuildContext context, Playing state) {
+  Widget _gameContent(
+    BuildContext context,
+    GameConfiguration configuration,
+    List<Cell> cells,
+    int minesRemaining,
+  ) {
+    final bloc = BlocProvider.of<GameBloc>(context);
     return Column(
       children: [
         Padding(
@@ -69,7 +84,7 @@ class GameScreen extends StatelessWidget {
               ),
               Spacer(),
               Text(
-                '10',
+                minesRemaining.toString(),
                 style: Theme.of(context).primaryTextTheme.headline5,
               ),
             ],
@@ -79,11 +94,25 @@ class GameScreen extends StatelessWidget {
           shrinkWrap: true,
           scrollDirection: Axis.vertical,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: state.gameConfiguration.width,
+            crossAxisCount: configuration.width,
           ),
-          itemCount: state.cells.length,
+          itemCount: cells.length,
           itemBuilder: (context, index) {
-            return CellView(cell: state.cells[index]);
+            return AnimatedSwitcher(
+              duration: Duration(milliseconds: 150),
+              child: CellView(
+                key: ObjectKey(cells[index]),
+                cell: cells[index],
+                onLongPress: () {
+                  final event = CellLongClicked(index);
+                  bloc.add(event);
+                },
+                onClick: () {
+                  final event = CellClicked(index);
+                  bloc.add(event);
+                },
+              ),
+            );
           },
         ),
       ],

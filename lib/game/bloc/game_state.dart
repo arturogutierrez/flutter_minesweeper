@@ -15,12 +15,22 @@ class GameInitial extends GameState {
 
 class Playing extends GameState {
   final List<Cell> cells;
+  final int minesRemaining;
 
-  Playing({
-    GameConfiguration configuration,
-    this.cells,
-  }) : super(configuration);
+  Playing({@required GameConfiguration configuration, @required this.cells, @required this.minesRemaining})
+      : super(configuration);
 
   @override
-  List<Object> get props => super.props..add(cells);
+  List<Object> get props => super.props..add([cells, minesRemaining]);
+}
+
+class Finished extends GameState {
+  final List<Cell> cells;
+  final int minesRemaining;
+
+  Finished({@required GameConfiguration configuration, @required this.cells, @required this.minesRemaining})
+      : super(configuration);
+
+  @override
+  List<Object> get props => super.props..add([cells, minesRemaining]);
 }

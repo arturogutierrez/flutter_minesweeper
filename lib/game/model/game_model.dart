@@ -30,7 +30,7 @@ class CellClosed extends Cell {
 
   CellClosed({
     @required CellContent content,
-    this.isFlagged,
+    this.isFlagged = false,
   }) : super(content: content);
 
   @override

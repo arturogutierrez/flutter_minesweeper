@@ -10,3 +10,21 @@ abstract class GameEvent extends Equatable {
 class InitializeGame extends GameEvent {
   const InitializeGame();
 }
+
+class CellClicked extends GameEvent {
+  final int index;
+
+  CellClicked(this.index);
+
+  @override
+  List<Object> get props => [index];
+}
+
+class CellLongClicked extends GameEvent {
+  final int index;
+
+  CellLongClicked(this.index);
+
+  @override
+  List<Object> get props => [index];
+}
