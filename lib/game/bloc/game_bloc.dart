@@ -6,10 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_minesweeper/game/model/game_model.dart';
 
 part 'game_event.dart';
+
 part 'game_state.dart';
 
 class GameBloc extends Bloc<GameEvent, GameState> {
   final GameConfiguration configuration;
+
+  Timer _timer;
 
   GameBloc(this.configuration) : super(GameInitial(configuration));
 
@@ -26,6 +29,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         yield* _mapCellLongClicked(currentState, event.index);
       } else if (event is CellClicked) {
         yield* _mapCellClicked(currentState, event.index);
+      } else if (event is TimeTick) {
+        yield* _mapTimeTick(currentState);
       }
     }
   }
@@ -45,7 +50,14 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       return _calculateContent(emptyCellWithBomb, index, item);
     }).toList();
 
-    yield Playing(configuration: configuration, cells: cells, minesRemaining: configuration.numberOfMines);
+    yield Playing(
+      configuration: configuration,
+      cells: cells,
+      minesRemaining: configuration.numberOfMines,
+      timeElapsed: 0,
+    );
+
+    _startTimer();
   }
 
   Cell _calculateContent(List<CellClosed> emptyCellWithBomb, int index, Cell cell) {
@@ -53,8 +65,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       return cell;
     }
 
-    final x = index % configuration.height;
-    final y = index ~/ configuration.height;
+    final x = index % configuration.width;
+    final y = index ~/ configuration.width;
 
     var bombsAround = 0;
     // Left
@@ -114,16 +126,17 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       );
       final minesRemaining = isFlagged ? state.minesRemaining - 1 : state.minesRemaining + 1;
 
-      if (minesRemaining == 0) {
-        final isWinner = _isWinner(newCells);
-        print(isWinner);
+      if (minesRemaining == 0 && _isWinner(newCells)) {
+        yield _createWinnerState(newCells, state.timeElapsed);
+        _stopTimer();
+      } else {
+        yield Playing(
+          configuration: configuration,
+          cells: newCells,
+          minesRemaining: minesRemaining,
+          timeElapsed: state.timeElapsed,
+        );
       }
-
-      yield Playing(
-        configuration: configuration,
-        cells: newCells,
-        minesRemaining: minesRemaining,
-      );
     }
   }
 
@@ -135,15 +148,25 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         final newCells = currentCells.map((e) {
           return CellOpened(content: e.content);
         }).toList();
+
         yield Finished(
           configuration: configuration,
           cells: newCells,
           minesRemaining: state.minesRemaining,
+          isWinner: false,
+          timeElapsed: state.timeElapsed,
         );
+
+        _stopTimer();
       } else {
         final newCells = List.of(currentCells);
         _openCell(newCells, index);
-        yield Playing(configuration: configuration, cells: newCells, minesRemaining: state.minesRemaining);
+        yield Playing(
+          configuration: configuration,
+          cells: newCells,
+          minesRemaining: state.minesRemaining,
+          timeElapsed: state.timeElapsed,
+        );
       }
     }
   }
@@ -188,6 +211,45 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       }
       return previousValue;
     });
+  }
+
+  Finished _createWinnerState(List<Cell> cells, int timeElapsed) {
+    final resultCells = cells.map((c) {
+      if (c is CellClosed && c.isFlagged) {
+        return c;
+      }
+      return CellOpened(content: c.content);
+    }).toList();
+
+    return Finished(
+      configuration: configuration,
+      cells: resultCells,
+      minesRemaining: 0,
+      isWinner: true,
+      timeElapsed: timeElapsed,
+    );
+  }
+
+  void _startTimer() {
+    _stopTimer();
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      add(TimeTick());
+    });
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  Stream<GameState> _mapTimeTick(Playing currentState) async* {
+    yield Playing(
+      configuration: currentState.gameConfiguration,
+      cells: currentState.cells,
+      minesRemaining: currentState.minesRemaining,
+      timeElapsed: currentState.timeElapsed + 1,
+    );
   }
 }
 

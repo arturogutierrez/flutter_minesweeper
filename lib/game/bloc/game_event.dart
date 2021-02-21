@@ -28,3 +28,5 @@ class CellLongClicked extends GameEvent {
   @override
   List<Object> get props => [index];
 }
+
+class TimeTick extends GameEvent {}

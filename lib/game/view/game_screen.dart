@@ -7,14 +7,15 @@ import 'package:flutter_minesweeper/game/model/game_model.dart';
 import 'game_cell.dart';
 
 class GameScreen extends StatelessWidget {
+  static const routeName = '/game';
+  static const configurationKey = 'configuration';
+
+  final GameConfiguration configuration;
+
+  const GameScreen({Key key, @required this.configuration}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    final configuration = GameConfiguration(
-      width: 8,
-      height: 8,
-      numberOfMines: 10,
-    );
-
     return BlocProvider(
       create: (context) => GameBloc(configuration)..add(InitializeGame()),
       child: BlocBuilder<GameBloc, GameState>(
@@ -52,9 +53,23 @@ class GameScreen extends StatelessWidget {
 
   Widget _getContent(GameState state, BuildContext context) {
     if (state is Playing) {
-      return _gameContent(context, state.gameConfiguration, state.cells, state.minesRemaining);
+      return _gameContent(
+        context,
+        state.gameConfiguration,
+        state.cells,
+        state.minesRemaining,
+        state.timeElapsed,
+        false,
+      );
     } else if (state is Finished) {
-      return _gameContent(context, state.gameConfiguration, state.cells, state.minesRemaining);
+      return _gameContent(
+        context,
+        state.gameConfiguration,
+        state.cells,
+        state.minesRemaining,
+        state.timeElapsed,
+        state.isWinner,
+      );
     }
     return _loading();
   }
@@ -70,6 +85,8 @@ class GameScreen extends StatelessWidget {
     GameConfiguration configuration,
     List<Cell> cells,
     int minesRemaining,
+    int timeElapsed,
+    bool isWinner,
   ) {
     final bloc = BlocProvider.of<GameBloc>(context);
     return Column(
@@ -79,7 +96,7 @@ class GameScreen extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                '00',
+                timeElapsed.toString(),
                 style: Theme.of(context).primaryTextTheme.headline5,
               ),
               Spacer(),
@@ -115,6 +132,14 @@ class GameScreen extends StatelessWidget {
             );
           },
         ),
+        if (isWinner)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Text(
+              'CONGRATULATIONS',
+              style: Theme.of(context).primaryTextTheme.headline4,
+            ),
+          ),
       ],
     );
   }
